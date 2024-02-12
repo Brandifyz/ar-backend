@@ -41,7 +41,7 @@ app.use("/api/v1/call", discoveryCall);
 app.use("/api/v1/payment", paymentRoute);
 
 app.get("/", (req, res) => {
-  res.send(`<h1>welcome to jetSetMed</h1>`);
+  res.send(`<h1>welcome to Ar World</h1>`);
 });
 app.listen(process.env.PORT, () => {
   console.log(`server is connecting at ${process.env.PORT}`.bgCyan.white);
