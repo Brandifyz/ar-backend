@@ -1,6 +1,8 @@
 import { User } from "../models/User.js";
-import { MedicalReport } from "../models/MedicalReport.js";
+import { ProjectBuild } from "../models/ProjectBuild.js";
 import getDataUri from "../utils/dataUri.js";
+// import getMultipleDataUri from "../utils/multipleDataUri.js";
+
 import { sendEmail } from "../utils/sendEmail.js";
 import { sendToken } from "../utils/sendToken.js";
 import crypto from "crypto";
@@ -213,42 +215,6 @@ export const updateProfilePicController = async (req, res) => {
     });
   }
 };
-export const updateMedicalReportController = async (req, res) => {
-  try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).send({
-        success: false,
-        message: "Please provide a medical report file.",
-      });
-    }
-    const user = await User.findById(req.user._id);
-
-    const fileUri = getDataUri(file);
-
-    const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
-      resource_type: "raw",
-    });
-    if (user.medical_report.public_id) {
-      await cloudinary.v2.uploader.destroy(user?.medical_report?.public_id);
-    }
-    user.medical_report = {
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    };
-    user.save();
-    res.status(200).send({
-      success: true,
-      message: "medical report updated successfully",
-    });
-  } catch (e) {
-    res.status(500).send({
-      success: false,
-      message: "internal server error",
-      e,
-    });
-  }
-};
 
 export const forgetPasswordController = async (req, res) => {
   try {
@@ -321,78 +287,43 @@ export const resetPasswordController = async (req, res) => {
 
 export const uploadProjectController = async (req, res) => {
   try {
-    const file = req.files;
-    // if (!file || !report_message || !report_title) {
-    //   return res.status(400).send({
-    //     success: false,
-    //     message: "Please provide all fields",
-    //   });
-    // }
+    const { file1, file2 } = req.files;
+    if (!file1 || !file2) {
+      return res.status(400).send({
+        success: false,
+        message: "Please provide both project and image files",
+      });
+    }
 
-    // const fileUri = getDataUri(file);
-    // const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
-    //   resource_type: "raw",
-    // });
-    // const user = await User.findById(req.user._id);
+    const fileUri1 = getDataUri(file1[0]);
+    const fileUri2 = getDataUri(file2[0]);
 
-    // const medicalData = await MedicalReport.create({
-    //   report_title,
-    //   report_message,
-    //   user: req.user._id,
+    const myCloud1 = await cloudinary.v2.uploader.upload(fileUri1.content, {
+      resource_type: "video",
+    });
+    const myCloud2 = await cloudinary.v2.uploader.upload(fileUri2.content);
+    // console.log(myCloud1, myCloud2, "****");
 
-    //   health_record: {
-    //     public_id: myCloud.public_id,
-    //     url: myCloud.secure_url,
-    //   },
-    // });
-    // user.medical_reports.push(medicalData._id);
-    // await user.save();
+    const user = await User.findById(req.user._id);
+    console.log(user);
+    const projectBuild = await ProjectBuild.create({
+      user: user._id,
+      target: {
+        public_id: myCloud1.public_id,
+        url: myCloud1.secure_url,
+      },
+      content: {
+        public_id: myCloud2.public_id,
+        url: myCloud2.secure_url,
+      },
+    });
+
+    user.project_report.push(projectBuild._id);
+    await user.save();
+
     res.status(200).send({
       success: true,
       message: "project  added successfully",
-      file: req.file,
-    });
-  } catch (e) {
-    res.status(500).send({
-      success: false,
-      message: "internal server error",
-      e,
-    });
-  }
-};
-
-export const getAllReportController = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id)
-      .populate("medical_reports")
-      .exec();
-    const medicalReports = user.medical_reports;
-    res.status(200).send({
-      success: true,
-      message: "medical report fetched successfully",
-      medicalReports,
-    });
-  } catch (e) {
-    res.status(500).send({
-      success: false,
-      message: "internal server error",
-      e,
-    });
-  }
-};
-
-export const deleteReportController = async (req, res) => {
-  try {
-    await MedicalReport.findByIdAndDelete(req.params.id);
-    const user = await User.findById(req.user._id);
-    const deleteReport = user.medical_reports.filter((m) => {
-      return m.toString() !== req.params.id.toString();
-    });
-    user.medical_reports = deleteReport;
-    await user.save();
-    res.status(200).send({
-      success: true,
-      message: "medical report deleted successfully",
     });
   } catch (e) {
     res.status(500).send({

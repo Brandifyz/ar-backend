@@ -40,14 +40,7 @@ const userSchema = new mongoose.Schema(
         required: true,
       },
     },
-    medical_report: {
-      public_id: {
-        type: String,
-      },
-      url: {
-        type: String,
-      },
-    },
+
     phone: {
       type: String,
     },
@@ -72,10 +65,10 @@ const userSchema = new mongoose.Schema(
     pincode: {
       type: String,
     },
-    medical_reports: [
+    project_report: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "MedicalReport",
+        ref: "ProjectBuild",
       },
     ],
 

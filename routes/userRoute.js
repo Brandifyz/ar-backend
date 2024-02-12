@@ -11,13 +11,12 @@ import {
   forgetPasswordController,
   resetPasswordController,
   uploadProjectController,
-  getAllReportController,
-  deleteReportController,
   getAllUserController,
   changeRoleController,
 } from "../controllers/userController.js";
 import { isAdmin, isAuthenticated } from "../middleware/auth.js";
 import singleUpload from "../middleware/multer.js";
+import { multipleUpload } from "../middleware/multipleMulter.js";
 router.post("/register", singleUpload, registerController);
 router.post("/login", loginController);
 router.get("/logout", logoutController);
@@ -35,12 +34,11 @@ router.post("/forgetpassword", forgetPasswordController);
 router.put("/resetpassword/:token", resetPasswordController);
 router.post(
   "/uploadproject",
-  singleUpload,
-  isAuthenticated,
+
+  // isAuthenticated,
+  multipleUpload,
   uploadProjectController
 );
-router.get("/allreport", isAuthenticated, getAllReportController);
-router.delete("/deletereport/:id", isAuthenticated, deleteReportController);
 router.get("/alluser", isAuthenticated, isAdmin, getAllUserController);
 router.put("/chagerole/:id", isAuthenticated, isAdmin, changeRoleController);
 
