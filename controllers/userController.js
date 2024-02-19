@@ -10,8 +10,8 @@ import cloudinary from "cloudinary";
 export const registerController = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const file = req.file;
-    if (!name || !email || !password || !file) {
+    // const file = req.file;
+    if (!name || !email || !password) {
       return res.status(400).send({
         success: false,
         message: "Please enter all fields",
@@ -25,17 +25,10 @@ export const registerController = async (req, res) => {
       });
     }
 
-    const fileUri = getDataUri(file);
-    const myCloud = await cloudinary.v2.uploader.upload(fileUri.content);
-
     user = await User.create({
       name,
       email,
       password,
-      avatar: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
     });
 
     sendToken(res, user, "register successfully", 201);
@@ -187,6 +180,7 @@ export const updateProfileController = async (req, res) => {
 export const updateProfilePicController = async (req, res) => {
   try {
     const file = req.file;
+    console.log(file, "upload it");
     if (!file) {
       return res.status(400).send({
         success: false,
@@ -196,8 +190,14 @@ export const updateProfilePicController = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     const fileUri = getDataUri(file);
+
+    if (user?.avatar?.public_id) {
+      console.log("now also", user?.avatar, Object.keys(user.avatar).length);
+      await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    }
     const myCloud = await cloudinary.v2.uploader.upload(fileUri.content);
-    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    console.log(myCloud);
+
     user.avatar = {
       public_id: myCloud.public_id,
       url: myCloud.secure_url,
@@ -228,11 +228,11 @@ export const forgetPasswordController = async (req, res) => {
     }
     const resetToken = await user.getResetToken();
     await user.save();
-    const url = `${process.env.FRONTEND_URL}/user/resetpassword/${resetToken}`;
+    const url = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
     const message = `
     Click on the link to reset your password ${url} if you have not request then please ignore
     `;
-    await sendEmail(user.email, "JetSetMed Reset Password", message);
+    await sendEmail(user.email, "Godspeed Reset Password", message);
 
     console.log("resetToken", resetToken);
     res.status(200).send({
@@ -287,11 +287,13 @@ export const resetPasswordController = async (req, res) => {
 
 export const uploadProjectController = async (req, res) => {
   try {
-    const { file1, file2 } = req.files;
-    if (!file1 || !file2) {
+    const { file1, file2, file3 } = req.files;
+    const { artWorkName } = req.body;
+
+    if (!file1 || !file2 || !artWorkName) {
       return res.status(400).send({
         success: false,
-        message: "Please provide both project and image files",
+        message: "Please provide video , image and artWorkName ",
       });
     }
 
@@ -302,7 +304,15 @@ export const uploadProjectController = async (req, res) => {
       resource_type: "video",
     });
     const myCloud2 = await cloudinary.v2.uploader.upload(fileUri2.content);
-    // console.log(myCloud1, myCloud2, "****");
+    let targetMind = {};
+    if (file3) {
+      const fileUri3 = getDataUri(file3[0]);
+      const myCloud3 = await cloudinary.v2.uploader.upload(fileUri3.content);
+      targetMind = {
+        public_id: myCloud3.public_id,
+        url: myCloud3.secure_url,
+      };
+    }
 
     const user = await User.findById(req.user._id);
     console.log(user);
@@ -316,6 +326,8 @@ export const uploadProjectController = async (req, res) => {
         public_id: myCloud2.public_id,
         url: myCloud2.secure_url,
       },
+      targetMind,
+      artWorkName,
     });
 
     user.project_report.push(projectBuild._id);

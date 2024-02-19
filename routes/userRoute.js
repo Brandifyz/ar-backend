@@ -35,7 +35,7 @@ router.put("/resetpassword/:token", resetPasswordController);
 router.post(
   "/uploadproject",
 
-  // isAuthenticated,
+  isAuthenticated,
   multipleUpload,
   uploadProjectController
 );

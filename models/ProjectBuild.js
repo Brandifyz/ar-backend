@@ -22,7 +22,18 @@ const projectSchemaSchema = new mongoose.Schema(
         required: true,
       },
     },
-
+    targetMind: {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
+    },
+    artWorkName: {
+      type: String,
+      required: true,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
