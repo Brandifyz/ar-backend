@@ -13,6 +13,8 @@ import {
   uploadProjectController,
   getAllUserController,
   changeRoleController,
+  getAllProjectController,
+  deleteProjectController,
 } from "../controllers/userController.js";
 import { isAdmin, isAuthenticated } from "../middleware/auth.js";
 import singleUpload from "../middleware/multer.js";
@@ -39,6 +41,9 @@ router.post(
   multipleUpload,
   uploadProjectController
 );
+router.get("/allproject", isAuthenticated, getAllProjectController);
+router.delete("/deletepropject/:id", isAuthenticated, deleteProjectController);
+
 router.get("/alluser", isAuthenticated, isAdmin, getAllUserController);
 router.put("/chagerole/:id", isAuthenticated, isAdmin, changeRoleController);
 

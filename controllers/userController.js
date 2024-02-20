@@ -289,7 +289,13 @@ export const uploadProjectController = async (req, res) => {
   try {
     const { file1, file2, file3 } = req.files;
     const { artWorkName } = req.body;
-
+    const user = await User.findById(req.user._id);
+    if (user?.project_report.length > 0) {
+      return res.status(400).send({
+        success: false,
+        message: "You can not upload more then one project",
+      });
+    }
     if (!file1 || !file2 || !artWorkName) {
       return res.status(400).send({
         success: false,
@@ -314,17 +320,16 @@ export const uploadProjectController = async (req, res) => {
       };
     }
 
-    const user = await User.findById(req.user._id);
     console.log(user);
     const projectBuild = await ProjectBuild.create({
       user: user._id,
       target: {
-        public_id: myCloud1.public_id,
-        url: myCloud1.secure_url,
-      },
-      content: {
         public_id: myCloud2.public_id,
         url: myCloud2.secure_url,
+      },
+      content: {
+        public_id: myCloud1.public_id,
+        url: myCloud1.secure_url,
       },
       targetMind,
       artWorkName,
@@ -345,7 +350,74 @@ export const uploadProjectController = async (req, res) => {
     });
   }
 };
+export const getAllProjectController = async (req, res) => {
+  try {
+    const project = await User.findById(req.user._id).populate(
+      "project_report"
+    );
 
+    if (!project) {
+      res.status(404).send({
+        success: false,
+        message: "no any user",
+      });
+    }
+    res.status(200).send({
+      success: true,
+      message: "project is fetched successfully",
+      project,
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
+    });
+  }
+};
+
+export const deleteProjectController = async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    if (!projectId) {
+      return res.status(404).send({
+        success: false,
+        message: "Id Not Found",
+      });
+    }
+    const project = await ProjectBuild.findByIdAndDelete(projectId);
+    if (!project) {
+      return res.status(404).send({
+        success: false,
+        message: "This id is not exist",
+      });
+    }
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "user is not found",
+      });
+    }
+
+    const data = user.project_report.filter(
+      (p, i) => p._id.toString() !== projectId.toString()
+    );
+    user.project_report = data;
+    await user.save();
+
+    res.status(201).send({
+      success: true,
+      message: "project is deleted successfully",
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
+    });
+  }
+};
 export const getAllUserController = async (req, res) => {
   try {
     const user = await User.find({});

@@ -34,6 +34,14 @@ const projectSchemaSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isShow: {
+      type: Boolean,
+      default: false,
+    },
+    isPlay: {
+      type: Boolean,
+      default: false,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
