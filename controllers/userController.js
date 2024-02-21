@@ -83,6 +83,8 @@ export const logoutController = (req, res) => {
     .status(200)
     .cookie("token", null, {
       expires: new Date(Date.now()),
+      secure: true,
+      httpOnly: true,
     })
     .send({
       success: true,
