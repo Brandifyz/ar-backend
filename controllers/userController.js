@@ -85,6 +85,7 @@ export const logoutController = (req, res) => {
       expires: new Date(Date.now()),
       secure: true,
       httpOnly: true,
+      sameSite: "none",
     })
     .send({
       success: true,
