@@ -46,6 +46,11 @@ const projectSchemaSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    status: {
+      type: String,
+      enum: ["build", "approved", "reject", "pending"],
+      default: "build",
+    },
     height: {
       type: String,
       required: true,
@@ -53,6 +58,10 @@ const projectSchemaSchema = new mongoose.Schema(
     width: {
       type: String,
       required: true,
+    },
+    builder: {
+      type: Boolean,
+      default: false,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,

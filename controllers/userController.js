@@ -291,7 +291,7 @@ export const resetPasswordController = async (req, res) => {
 export const uploadProjectController = async (req, res) => {
   try {
     const { file1, file2, file3 } = req.files;
-    const { artWorkName } = req.body;
+    const { artWorkName, width, height, builder, status } = req.body;
     const user = await User.findById(req.user._id);
     if (user?.project_report.length > 0) {
       return res.status(400).send({
@@ -336,6 +336,10 @@ export const uploadProjectController = async (req, res) => {
       },
       targetMind,
       artWorkName,
+      width,
+      height,
+      builder,
+      status,
     });
 
     user.project_report.push(projectBuild._id);
@@ -378,7 +382,31 @@ export const getAllProjectController = async (req, res) => {
     });
   }
 };
+export const getBuildProjectController = async (req, res) => {
+  try {
+    const project = await ProjectBuild.find({
+      builder: true,
+    }).populate("user");
 
+    if (!project) {
+      res.status(404).send({
+        success: false,
+        message: "no any request for project building",
+      });
+    }
+    res.status(200).send({
+      success: true,
+      message: "Build project is fetched successfully",
+      project,
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
+    });
+  }
+};
 export const deleteProjectController = async (req, res) => {
   try {
     const projectId = req.params.id;
@@ -412,6 +440,76 @@ export const deleteProjectController = async (req, res) => {
     res.status(201).send({
       success: true,
       message: "project is deleted successfully",
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
+    });
+  }
+};
+
+export const updateProjectController = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const file = req.file;
+
+    const { id } = req.params;
+    console.log("server", file, id);
+    const project = await ProjectBuild.findById(id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    if (status) project.status = "reject";
+    if (file) {
+      console.log("serverFile");
+
+      project.mindArUpload = true;
+      project.status = "approved";
+      console.log("start");
+
+      const fileUri = getDataUri(file);
+      console.log("end", fileUri);
+      if (project?.targetMind?.public_id) {
+        await cloudinary.v2.uploader.destroy(project.targetMind.public_id);
+      }
+      const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
+        resource_type: "auto",
+      });
+      console.log(myCloud);
+
+      project.targetMind = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+    }
+
+    await project.save();
+    res.status(200).send({
+      success: true,
+      message: "Project updated successfully",
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
+    });
+  }
+};
+export const projectGetController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await ProjectBuild.findById(id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "Single project fetched",
+      project,
     });
   } catch (e) {
     res.status(500).send({
