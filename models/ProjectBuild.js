@@ -42,6 +42,18 @@ const projectSchemaSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    mindArUpload: {
+      type: Boolean,
+      default: false,
+    },
+    height: {
+      type: String,
+      required: true,
+    },
+    width: {
+      type: String,
+      required: true,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
