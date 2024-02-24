@@ -357,6 +357,29 @@ export const uploadProjectController = async (req, res) => {
     });
   }
 };
+export const getAllProjectAdminController = async (req, res) => {
+  try {
+    const project = await ProjectBuild.find({}).populate("user");
+
+    if (!project) {
+      res.status(404).send({
+        success: false,
+        message: "no any user",
+      });
+    }
+    res.status(200).send({
+      success: true,
+      message: "All Project is fetched successfully",
+      project,
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
+    });
+  }
+};
 export const getAllProjectController = async (req, res) => {
   try {
     const project = await User.findById(req.user._id).populate(

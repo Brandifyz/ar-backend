@@ -19,6 +19,7 @@ import {
   getBuildProjectController,
   projectGetController,
   updateProjectUserController,
+  getAllProjectAdminController,
 } from "../controllers/userController.js";
 import { isAdmin, isAuthenticated } from "../middleware/auth.js";
 import singleUpload from "../middleware/multer.js";
@@ -46,6 +47,13 @@ router.post(
   uploadProjectController
 );
 router.get("/allproject", isAuthenticated, getAllProjectController);
+router.get(
+  "/allprojectadmin",
+  isAuthenticated,
+  isAdmin,
+  getAllProjectAdminController
+);
+
 router.delete("/deletepropject/:id", isAuthenticated, deleteProjectController);
 router.put(
   "/updatepropject/:id",
