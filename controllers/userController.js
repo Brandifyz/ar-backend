@@ -458,6 +458,7 @@ export const updateProjectController = async (req, res) => {
     const { id } = req.params;
     console.log("server", file, id);
     const project = await ProjectBuild.findById(id);
+    // console.log(project);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -486,9 +487,24 @@ export const updateProjectController = async (req, res) => {
     }
 
     await project.save();
+    const user = await User.findById(project?.user);
+    const url = `${process.env.FRONTEND_URL}/userdashboard`;
+    const message = `
+    We're excited to inform you that your project is now ready for viewing! Click on the link below to see the finished product:
+
+${url}
+
+Thank you for choosing us for your project. If you have any questions or need further assistance, please don't hesitate to contact us.
+
+Best regards,
+Godspeed
+    `;
+    await sendEmail(user.email, "Godspeed Project is Ready", message);
+
     res.status(200).send({
       success: true,
       message: "Project updated successfully",
+      project,
     });
   } catch (e) {
     res.status(500).send({
