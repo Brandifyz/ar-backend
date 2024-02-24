@@ -498,6 +498,35 @@ export const updateProjectController = async (req, res) => {
     });
   }
 };
+
+export const updateProjectUserController = async (req, res) => {
+  try {
+    const { status, builder } = req.body;
+
+    const { id } = req.params;
+
+    const project = await ProjectBuild.findById(id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    if (status) project.status = status;
+    if (builder) project.builder = builder;
+    const a = await project.save();
+    res.status(200).send({
+      success: true,
+      message: "Single Project updated successfully",
+      a,
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
+      builder,
+      status,
+    });
+  }
+};
 export const projectGetController = async (req, res) => {
   try {
     const { id } = req.params;

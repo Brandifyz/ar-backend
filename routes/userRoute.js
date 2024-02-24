@@ -18,6 +18,7 @@ import {
   updateProjectController,
   getBuildProjectController,
   projectGetController,
+  updateProjectUserController,
 } from "../controllers/userController.js";
 import { isAdmin, isAuthenticated } from "../middleware/auth.js";
 import singleUpload from "../middleware/multer.js";
@@ -52,6 +53,11 @@ router.put(
   isAdmin,
   singleUpload,
   updateProjectController
+);
+router.put(
+  "/updatepropjectuser/:id",
+  isAuthenticated,
+  updateProjectUserController
 );
 router.get(
   "/buildproject",
