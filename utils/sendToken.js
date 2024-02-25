@@ -11,6 +11,7 @@ export const sendToken = async (res, user, message, statusCode = 200) => {
     success: true,
     message,
     user,
+    token,
   });
   console.log(res.getHeaders());
 };
