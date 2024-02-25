@@ -25,19 +25,22 @@ export const instance = new Razorpay({
 });
 const app = express();
 // middleware
-
+app.set("cookiePrefix", "ARVisual_");
+app.set("trust proxy", 1);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    // origin: process.env.FRONTEND_URL,
-    origin: "*",
-
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
-
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  next();
+});
 // routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/call", discoveryCall);
