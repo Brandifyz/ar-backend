@@ -58,7 +58,7 @@ router.delete("/deletepropject/:id", isAuthenticated, deleteProjectController);
 router.put(
   "/updatepropject/:id",
   isAuthenticated,
-  isAdmin,
+  // isAdmin,
   singleUpload,
   updateProjectController
 );

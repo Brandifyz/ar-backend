@@ -291,6 +291,8 @@ export const resetPasswordController = async (req, res) => {
 export const uploadProjectController = async (req, res) => {
   try {
     const { file1, file2, file3 } = req.files;
+    // const a = URL.createObjectURL(file2);
+    // console.log("dataTaken", a);
     const { artWorkName, width, height, builder, status } = req.body;
     const user = await User.findById(req.user._id);
     if (user?.project_report.length > 0) {
@@ -344,6 +346,7 @@ export const uploadProjectController = async (req, res) => {
 
     user.project_report.push(projectBuild._id);
     await user.save();
+    // res.send(`<script>window.data = ${JSON.stringify(file2)};</script>`);
 
     res.status(200).send({
       success: true,
