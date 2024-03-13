@@ -16,7 +16,7 @@ const downloadAndUpload = async (buffer, id) => {
     formData.append("file", blob, "targets.mind");
 
     const response = await fetch(
-      `http://localhost:4000/api/v1/user/updatepropject/${id}`,
+      `https://ar-backend-j397.onrender.com/api/v1/user/updatepropject/${id}`,
       {
         method: "PUT",
         body: formData,
@@ -69,7 +69,7 @@ function handleFiles(files, id) {
 async function fetchAndSortData() {
   try {
     const response = await fetch(
-      `http://localhost:4000/api/v1/user/allproject`,
+      `https://ar-backend-j397.onrender.com/api/v1/user/allproject`,
       {
         method: "GET",
         credentials: "include", // Use 'include' to send cookies along with the request
