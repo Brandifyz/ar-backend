@@ -291,14 +291,13 @@ export const resetPasswordController = async (req, res) => {
 export const uploadProjectController = async (req, res) => {
   try {
     const { file1, file2, file3 } = req.files;
-    // const a = URL.createObjectURL(file2);
-    // console.log("dataTaken", a);
     const { artWorkName, width, height, builder, status } = req.body;
     const user = await User.findById(req.user._id);
-    if (user?.project_report.length > 0) {
+    if (user?.project_report.length > 2) {
       return res.status(400).send({
         success: false,
-        message: "You can not upload more then one project",
+        message:
+          "You can not upload more then 2 project . if you want to create more , please purchase our plane",
       });
     }
     if (!file1 || !file2 || !artWorkName) {
@@ -315,6 +314,7 @@ export const uploadProjectController = async (req, res) => {
       resource_type: "video",
     });
     const myCloud2 = await cloudinary.v2.uploader.upload(fileUri2.content);
+
     let targetMind = {};
     if (file3) {
       const fileUri3 = getDataUri(file3[0]);
@@ -482,7 +482,7 @@ export const updateProjectController = async (req, res) => {
     const file = req.file;
 
     const { id } = req.params;
-    console.log("server", file, id);
+    console.log("server***", id);
     const project = await ProjectBuild.findById(id);
     // console.log(project);
     if (!project) {
@@ -560,12 +560,93 @@ export const updateProjectUserController = async (req, res) => {
       a,
     });
   } catch (e) {
+    console.log(e);
     res.status(500).send({
       success: false,
       message: "internal server error",
       e,
+    });
+  }
+};
+
+export const projectEditController = async (req, res) => {
+  try {
+    const { file1, file2 } = req.files;
+    const {
+      isPlay,
+      mindArUpload,
+      artWorkName,
+      width,
+      height,
       builder,
       status,
+    } = req.body;
+    const { id } = req.params;
+    const project = await ProjectBuild.findById(id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    if (status) project.status = status;
+    if (artWorkName) project.artWorkName = artWorkName;
+    if (width) project.width = width;
+    if (height) project.height = height;
+    if (builder) project.builder = builder;
+    if (mindArUpload) project.mindArUpload = mindArUpload;
+    if (isPlay) project.isPlay = isPlay;
+    if (file1) {
+      const fileUri1 = getDataUri(file1[0]);
+      if (project?.content?.public_id) {
+        await cloudinary.v2.uploader.destroy(project.content.public_id);
+      }
+
+      const myCloud1 = await cloudinary.v2.uploader.upload(fileUri1.content, {
+        resource_type: "video",
+      });
+      project.content = {
+        public_id: myCloud1.public_id,
+        url: myCloud1.secure_url,
+      };
+    }
+
+    if (file2) {
+      const fileUri2 = getDataUri(file2[0]);
+      if (project?.target?.public_id) {
+        await cloudinary.v2.uploader.destroy(project.target.public_id);
+      }
+
+      const myCloud2 = await cloudinary.v2.uploader.upload(fileUri2.content);
+
+      project.target = {
+        public_id: myCloud2.public_id,
+        url: myCloud2.secure_url,
+      };
+    }
+
+    await project.save();
+    //     const user = await User.findById(project?.user);
+    //     const url = `${process.env.FRONTEND_URL}/userdashboard`;
+    //     const message = `
+    //     We're excited to inform you that your project is now ready for viewing! Click on the link below to see the finished product:
+
+    // ${url}
+
+    // Thank you for choosing us for your project. If you have any questions or need further assistance, please don't hesitate to contact us.
+
+    // Best regards,
+    // Godspeed
+    //     `;
+    //     await sendEmail(user.email, "Godspeed Project is Ready", message);
+
+    res.status(200).send({
+      success: true,
+      message: "Project updated successfully",
+      project,
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      message: "internal server error",
+      e,
     });
   }
 };
@@ -640,5 +721,26 @@ export const changeRoleController = async (req, res) => {
       message: "internal server error",
       e,
     });
+  }
+};
+
+export const getLatestProjectController = async (req, res) => {
+  try {
+    const latestProject = await User.findOne({ _id: req.user._id })
+      .populate("project_report")
+      .lean();
+
+    latestProject.project_report.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    // Get the first element of the sorted array (which will be the element with the latest timestamp)
+    const latestProjectReport = latestProject.project_report[0];
+
+    res.json(latestProjectReport);
+    // res.json({ project: latestProject });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

@@ -1,14 +1,5 @@
 const compiler = new MINDAR.IMAGE.Compiler();
 
-// const download = (buffer) => {
-//   var blob = new Blob([buffer]);
-//   var aLink = window.document.createElement("a");
-//   aLink.download = "targets.mind";
-//   // console.log(window.URL.createObjectURL(blob));
-//   aLink.href = window.URL.createObjectURL(blob);
-//   aLink.click();
-//   window.URL.revokeObjectURL(aLink.href);
-// };
 const downloadAndUpload = async (buffer, id) => {
   try {
     var blob = new Blob([buffer]);
@@ -16,9 +7,11 @@ const downloadAndUpload = async (buffer, id) => {
     formData.append("file", blob, "targets.mind");
 
     const response = await fetch(
-      `https://ar-backend-j397.onrender.com/api/v1/user/updatepropject/${id}`,
+      // `https://ar-backend-j397.onrender.com/api/v1/user/updatepropject/${id}`,
+      `http://localhost:4000/api/v1/user/updatepropject/${id}`,
+
       {
-        method: "PUT",
+        method: "PATCH",
         body: formData,
         credentials: "include",
       }
@@ -30,8 +23,8 @@ const downloadAndUpload = async (buffer, id) => {
 
     const data = await response.json();
     console.log("File uploaded to Cloudinary:", data);
-    // window.location.href = "http://localhost:3000/userdashboard";
-    window.location.href = "https://ar-visual.vercel.app/userdashboard";
+    window.location.href = "http://localhost:3000/userdashboard";
+    // window.location.href = "https://ar-visual.vercel.app/userdashboard";
   } catch (error) {
     console.error("Error uploading file to Cloudinary:", error);
   }
@@ -69,7 +62,10 @@ function handleFiles(files, id) {
 async function fetchAndSortData() {
   try {
     const response = await fetch(
-      `https://ar-backend-j397.onrender.com/api/v1/user/allproject`,
+      // `https://ar-backend-j397.onrender.com/api/v1/user/allproject`,
+      // `http://localhost:4000/api/v1/user/allproject`,
+      `http://localhost:4000/api/v1/user/getlatestproject`,
+
       {
         method: "GET",
         credentials: "include", // Use 'include' to send cookies along with the request
@@ -80,9 +76,15 @@ async function fetchAndSortData() {
     }
     const data = await response.json();
     console.log(data);
-    console.log("Project", data?.project?.project_report[0]?.target?.url);
-    const target = data?.project?.project_report[0]?.target?.url;
-    const id = data?.project?.project_report[0]?._id;
+    // console.log("Project", data?.project?.target?.url);
+    // console.log("Project2", data?.project?.project_report[0]?.target?.url);
+
+    // const target = data?.project?.project_report[1].target?.url;
+    // const id = data?.project?.project_report[1]._id;
+    console.log(data);
+    const target = data?.target?.url;
+    const id = data?._id;
+    console.log(target, id);
     handleFiles(target, id);
     // Process the data and set state or perform other actions
   } catch (error) {
