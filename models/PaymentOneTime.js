@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-const paymentSchema = new mongoose.Schema(
+const paymentOneTimeSchema = new mongoose.Schema(
   {
     razorpay_payment_id: {
       type: String,
       required: true,
     },
-    razorpay_subscription_id: {
+    razorpay_order_id: {
       type: String,
       required: true,
     },
@@ -20,4 +20,7 @@ const paymentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-export const Payment = new mongoose.model("Payment", paymentSchema);
+export const PaymentOneTime = new mongoose.model(
+  "PaymentOneTime",
+  paymentOneTimeSchema
+);

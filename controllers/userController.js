@@ -293,11 +293,15 @@ export const uploadProjectController = async (req, res) => {
     const { file1, file2, file3 } = req.files;
     const { artWorkName, width, height, builder, status } = req.body;
     const user = await User.findById(req.user._id);
-    if (user?.project_report.length > 2) {
+
+    const project = await ProjectBuild.find({
+      "subscriptionId.status": "active",
+    });
+    console.log("length", project.length);
+    if (user?.project_report.length >= project.length + 2) {
       return res.status(400).send({
         success: false,
-        message:
-          "You can not upload more then 2 project . if you want to create more , please purchase our plane",
+        message: "Upgrade your existing free project to create a new project",
       });
     }
     if (!file1 || !file2 || !artWorkName) {

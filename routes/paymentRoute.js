@@ -8,7 +8,7 @@ import {
   cancelSubscriptionController,
 } from "../controllers/paymentController.js";
 
-router.get("/subscribe", isAuthenticated, buySubscriptionController);
+router.get("/subscribe/:id", isAuthenticated, buySubscriptionController);
 // verify payment and save reference in database
 router.post(
   "/paymentverification",

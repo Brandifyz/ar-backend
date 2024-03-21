@@ -63,6 +63,33 @@ const projectSchemaSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    paymentInfo: {
+      type: mongoose.Schema.ObjectId,
+      ref: "PaymentOneTime",
+    },
+    subscriptionInfo: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Payment",
+    },
+    subscription: {
+      id: String,
+      status: String,
+    },
+    paidAt: Date,
+    subscriptionId: {
+      planId: {
+        type: String,
+      },
+      status: {
+        type: String,
+        enum: ["create", "active", "expired"],
+        default: "create",
+      },
+      expiryDate: {
+        type: Date, // New field for expiry date
+      },
+    },
+
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

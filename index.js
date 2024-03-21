@@ -11,6 +11,8 @@ import connectDB from "./config/connectDb.js";
 import userRoute from "./routes/userRoute.js";
 import discoveryCall from "./routes/discoveryCall.js";
 import paymentRoute from "./routes/paymentRoute.js";
+import paymentOneRoute from "./routes/payemntOneRoute.js";
+import { startCronJob } from "./middleware/updateStatus.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({
   path: "./config/config.env",
@@ -27,7 +29,7 @@ export const instance = new Razorpay({
 });
 const app = express();
 // middleware
-
+startCronJob();
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -42,6 +44,7 @@ app.use(express.static(join(__dirname, "static")));
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/call", discoveryCall);
 app.use("/api/v1/payment", paymentRoute);
+app.use("/api/v1/paymentone", paymentOneRoute);
 
 app.get("/", (req, res) => {
   res.send(`<h1>welcome to Ar World</h1>`);
