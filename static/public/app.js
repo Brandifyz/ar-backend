@@ -64,7 +64,7 @@ async function fetchAndSortData() {
     const response = await fetch(
       `https://ar-backend-j397.onrender.com/api/v1/user/getlatestproject`,
 
-      `http://localhost:4000/api/v1/user/getlatestproject`,
+      // `http://localhost:4000/api/v1/user/getlatestproject`,
 
       {
         method: "GET",
