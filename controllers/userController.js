@@ -295,9 +295,15 @@ export const uploadProjectController = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     const project = await ProjectBuild.find({
+      user: req.user._id,
       "subscriptionId.status": "active",
     });
-    console.log("length", project.length);
+    // const checker=await ProjectBuild.find({user:req.user._id});
+
+    console.log("length123", project.length);
+    console.log(user?.project_report.length);
+    console.log(project.length + 2);
+
     if (user?.project_report.length >= project.length + 2) {
       return res.status(400).send({
         success: false,
@@ -350,7 +356,6 @@ export const uploadProjectController = async (req, res) => {
 
     user.project_report.push(projectBuild._id);
     await user.save();
-    // res.send(`<script>window.data = ${JSON.stringify(file2)};</script>`);
 
     res.status(200).send({
       success: true,
